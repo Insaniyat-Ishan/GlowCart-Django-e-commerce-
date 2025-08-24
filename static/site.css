@@ -1,0 +1,79 @@
+/* static/site.css */
+:root { --brand:#111; --accent:#0ea5e9; }
+body { background-color:#fafafa; }
+.navbar-brand { letter-spacing:0.5px; }
+.hero {
+  background: linear-gradient(135deg, #fff, #f2fbff);
+  border:1px solid #e9ecef; border-radius:16px; padding:2.5rem;
+}
+.card-product img { aspect-ratio:1/1; object-fit:cover; }
+.badge-soft { background:#e7f5ff; color:#0b7285; }
+
+/* Auth visuals */
+/* --- Auth shell (already added earlier) --- */
+.auth-bg { background: radial-gradient(1200px 600px at 10% 10%, #eef8ff 0%, transparent 60%),
+                         radial-gradient(1000px 500px at 90% 20%, #fff2f2 0%, transparent 60%),
+                         linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); }
+.auth-card { border-radius: 18px; box-shadow: 0 10px 30px rgba(16,24,40,.08); border: 1px solid #eef2f7; overflow: hidden; }
+.auth-brand { letter-spacing: .5px; }
+.btn-auth { padding: .75rem 1rem; border-radius: 12px; }
+
+/* --- Preset base: uses two CSS variables --- */
+.auth-side{
+  min-height:320px;
+  color:#fff;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+
+/* 1) Minimal Skincare Flatlay (white/pastel, subtle overlay) */
+.auth-minimal {
+  --auth-image: url('https://images.unsplash.com/photo-1585238342028-4bbc0a3f84e1?q=80&w=1600&auto=format&fit=crop');
+  --auth-overlay: linear-gradient(135deg, rgba(255,255,255,.05), rgba(0,0,0,.10));
+}
+
+/* 2) Soft Lifestyle Portrait (fresh, confident) */
+.auth-portrait {
+  --auth-image: url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1600&auto=format&fit=crop');
+  --auth-overlay: linear-gradient(135deg, rgba(0,0,0,.30), rgba(0,0,0,.20));
+}
+
+/* 3) Natural & Botanical (aloe/green leaves, spa mood) */
+.auth-botanical {
+  --auth-image: url('https://images.unsplash.com/photo-1530971013997-e06bb52a2372?q=80&w=1600&auto=format&fit=crop');
+  --auth-overlay: linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.15));
+}
+
+/* 4) Abstract Pastel Background (soft gradients) */
+.auth-abstract {
+  --auth-image: url('https://images.unsplash.com/photo-1541873676-a18131494184?q=80&w=1600&auto=format&fit=crop');
+  --auth-overlay: linear-gradient(135deg, rgba(0,0,0,.18), rgba(0,0,0,.08));
+}
+
+/* 5) Luxury Product Closeups (premium, glossy) */
+.auth-luxury {
+  --auth-image: url('https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?q=80&w=1600&auto=format&fit=crop');
+  --auth-overlay: linear-gradient(135deg, rgba(0,0,0,.45), rgba(0,0,0,.25));
+}
+
+/* Product card layout (hard stop for runaway images) */
+.card-product {
+  border-radius: 16px;
+  overflow: hidden;            /* keep image inside the card */
+  border: 1px solid #e9ecef;
+}
+
+/* Make every catalog image a square thumbnail that fills the card */
+.card-product img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 1 / 1;         /* square */
+  object-fit: cover;           /* crop to fill */
+}
+
+/* Minor spacing polish on badges/links inside cards */
+.card-product .badge { font-weight: 500; }
+.card-product{ border-radius:16px; overflow:hidden; border:1px solid #e9ecef; }
+.card-product img{ width:100%; display:block; aspect-ratio:1/1; object-fit:cover; }

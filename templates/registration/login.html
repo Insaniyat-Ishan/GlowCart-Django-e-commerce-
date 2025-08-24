@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login — GlowCart{% endblock %}
+{% block content %}
+<div class="auth-bg min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="row g-0 auth-card">
+          <!-- Left image panel: your login image -->
+          <div class="col-lg-5 auth-side"
+               style="background-image:
+                      linear-gradient(135deg, rgba(0,0,0,.35), rgba(0,0,0,.20)),
+                      url('{% static "img/login-hero.jpg" %}');">
+            <div class="p-4 d-flex flex-column h-100">
+              <div class="h4 fw-bold auth-brand">GlowCart</div>
+              <div class="mt-auto">
+                <div class="h5 fw-semibold">Welcome back</div>
+                <p class="text-white-50 mb-0">Sign in to manage orders and your routine.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right form panel -->
+          <div class="col-lg-7 bg-white">
+            <div class="p-4 p-md-5">
+              <form method="post" novalidate>
+                {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+                <div class="mb-3">
+                  <label class="form-label">Username</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input name="username" class="form-control" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input id="login-pass" name="password" type="password" class="form-control" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggle-login-pass">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button class="btn btn-dark btn-auth" type="submit">Login</button>
+                  <a class="btn btn-outline-dark btn-auth" href="/register/">Create a new account</a>
+                </div>
+              </form>
+              <div class="text-muted small mt-3">By continuing, you agree to our Terms & Privacy.</div>
+            </div>
+          </div>
+        </div>
+      </div>  
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('toggle-login-pass')?.addEventListener('click', function(){
+  const i = document.getElementById('login-pass'); if(!i) return;
+  i.type = i.type === 'password' ? 'text' : 'password';
+  const icon = this.querySelector('i'); icon.classList.toggle('bi-eye'); icon.classList.toggle('bi-eye-slash');
+});
+</script>
+{% endblock %}

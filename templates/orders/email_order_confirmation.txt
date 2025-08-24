@@ -1,0 +1,15 @@
+Thanks for your order, {{ order.user.username }}!
+
+Order #{{ order.id }} — {{ order.created_at|date:"M j, Y H:i" }}
+Status: {{ order.get_status_display }}
+
+Items:
+{% for it in items %}
+- {{ it.product.title }} × {{ it.qty }} @ {{ it.unit_price }} = {{ it.line_total }}
+{% endfor %}
+
+Subtotal: {{ order.subtotal }}
+{% if order.discount_total and order.discount_total > 0 %}Discount: -{{ order.discount_total }}{% endif %}
+Total: {{ order.total }}
+
+We’ll contact you when it’s on the way.

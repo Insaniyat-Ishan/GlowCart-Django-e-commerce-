@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}New Address — GlowCart{% endblock %}
+{% block content %}
+<div class="container" style="max-width:640px">
+  <h1 class="h4 mb-3">New Address</h1>
+  <form method="post" class="card p-3">
+    {% csrf_token %}
+    <div class="row g-2">
+      <div class="col-md-6">
+        <label class="form-label">Full name</label>
+        <input name="full_name" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Phone</label>
+        <input name="phone" class="form-control">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address line 1</label>
+        <input name="line1" class="form-control" required>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address line 2 (optional)</label>
+        <input name="line2" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">City</label>
+        <input name="city" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Postcode</label>
+        <input name="postcode" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Country</label>
+        <input name="country" value="Bangladesh" class="form-control">
+      </div>
+      <div class="col-12">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="is_default" id="defcheck">
+          <label class="form-check-label" for="defcheck">Set as default</label>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-dark" type="submit">Save</button>
+      <a class="btn btn-outline-dark" href="/profile/">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block extra_head %}
+  {% if object %}
+    {% with desc=object.short_description|default:"Shop premium skincare & hair products at GlowCart." %}
+      <meta property="og:type" content="product">
+      <meta property="og:title" content="{{ object.title }} — GlowCart">
+      <meta property="og:description" content="{{ desc }}">
+      <meta property="og:url" content="{{ request.build_absolute_uri }}">
+
+      {% if object.image %}
+        {% with img=object.image.url %}
+          <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img }}">
+          <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img }}">
+        {% endwith %}
+      {% elif object.image_url %}
+          <meta property="og:image" content="{{ object.image_url }}">
+          <meta name="twitter:image" content="{{ object.image_url }}">
+      {% endif %}
+
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="{{ object.title }} — GlowCart">
+      <meta name="twitter:description" content="{{ desc }}">
+    {% endwith %}
+  {% endif %}
+{% endblock %}
+
+
+
+{% load static %}
+{% load shop_extras %}
+
+{% block title %}{{ object.title }} — GlowCart{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row g-4">
+    <div class="col-md-6">
+      <!-- ✅ Fixed gallery (no inline Python) -->
+      <div id="pdpGallery">
+        {% with gallery=object.images.all %}
+          {% if gallery %}
+            {% with g=gallery.0 %}
+              {% if g.image %}
+                <img src="{{ g.image.url }}" alt="{{ g.alt|default:object.title }}" class="img-fluid rounded-4 border mb-2" id="mainImg">
+              {% elif g.image_url %}
+                <img src="{{ g.image_url }}" alt="{{ g.alt|default:object.title }}" class="img-fluid rounded-4 border mb-2" id="mainImg">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=1200&auto=format&fit=crop" alt="{{ object.title }}" class="img-fluid rounded-4 border mb-2" id="mainImg">
+              {% endif %}
+            {% endwith %}
+
+            <div class="d-flex gap-2 flex-wrap">
+              {% for g in gallery %}
+                {% if g.image %}
+                  <a href="#" class="thumb" data-src="{{ g.image.url }}">
+                    <img src="{{ g.image.url }}" alt="{{ g.alt|default:object.title }}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e9ecef;">
+                  </a>
+                {% elif g.image_url %}
+                  <a href="#" class="thumb" data-src="{{ g.image_url }}">
+                    <img src="{{ g.image_url }}" alt="{{ g.alt|default:object.title }}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #e9ecef;">
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            {% if object.image %}
+              <img src="{{ object.image.url }}" alt="{{ object.title }}" class="img-fluid rounded-4 border" id="mainImg">
+            {% elif object.image_url %}
+              <img src="{{ object.image_url }}" alt="{{ object.title }}" class="img-fluid rounded-4 border" id="mainImg">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=1200&auto=format&fit=crop" alt="{{ object.title }}" class="img-fluid rounded-4 border" id="mainImg">
+            {% endif %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <script>
+      document.addEventListener('click', function(e){
+        const a = e.target.closest('#pdpGallery a.thumb');
+        if(!a) return;
+        e.preventDefault();
+        const main = document.getElementById('mainImg');
+        const src = a.getAttribute('data-src');
+        if (main && src) main.src = src;
+      });
+      </script>
+    </div>
+
+    <div class="col-md-6">
+      <!-- ✅ Breadcrumbs -->
+      <nav aria-label="breadcrumb" class="small mb-2">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item"><a href="/shop/">Shop</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'category_list' object.category.slug %}">{{ object.category.name }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ object.title }}</li>
+        </ol>
+      </nav>
+
+      <div class="mb-2"><a href="/shop/" class="text-muted small">← Back to shop</a></div>
+      <h1 class="h3 mb-1">{{ object.title }}</h1>
+      <div class="text-muted mb-2">{{ object.brand.name }} · {{ object.category.name }}</div>
+
+      <!-- ✅ Price + rating -->
+      <div class="h4 mb-1">{{ object.price|money }}</div>
+      <div class="mb-3">
+        {% if rating_count %}
+          {% stars rating_avg %}
+          <span class="small text-muted">
+            {{ rating_avg|floatformat:1 }} / 5 · {{ rating_count }} review{{ rating_count|pluralize }}
+          </span>
+        {% else %}
+          <span class="small text-muted">No reviews yet</span>
+        {% endif %}
+      </div>
+
+      {% if object.short_description %}
+        <p class="text-secondary">{{ object.short_description }}</p>
+      {% endif %}
+
+      <!-- ✅ Qty + Add to cart -->
+      <form method="post" action="{% url 'add_to_cart' object.id %}" class="d-flex gap-2 align-items-center flex-wrap">
+        {% csrf_token %}
+
+        {% if has_variants %}
+          <div style="min-width:220px">
+            <label class="form-label mb-1">Variant</label>
+            <select name="variant_id" class="form-select" required>
+              {% for v in all_variants %}
+                {% if v.is_active and v.stock %}
+                  <option value="{{ v.id }}">{{ v.name }} — {{ v.display_price|money }}</option>
+                {% else %}
+                  <option value="{{ v.id }}" disabled>{{ v.name }} — Out of stock</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+
+        <input type="number" name="qty" min="1" value="1" class="form-control" style="max-width: 120px;">
+
+        {% if has_variants %}
+          <button class="btn btn-dark btn-lg" type="submit" {% if not has_buyable_variant %}disabled{% endif %}>
+            {% if has_buyable_variant %}Add to Cart{% else %}Out of Stock{% endif %}
+          </button>
+        {% else %}
+          <button class="btn btn-dark btn-lg" type="submit" {% if object.stock|default:0 <= 0 %}disabled{% endif %}>
+            {% if object.stock|default:0 <= 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+          </button>
+        {% endif %}
+      </form>
+
+      {% if object.stock|default:0 > 0 and object.stock <= 3 %}
+        <div class="mt-2 small text-danger">Hurry—only {{ object.stock }} left</div>
+      {% endif %}
+
+      <!-- ✅ Wishlist button -->
+      <form method="post" action="{% url 'toggle_wishlist' object.id %}" class="mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn btn-outline-dark" type="submit">
+          <i class="bi bi-heart"></i> Add to Wishlist
+        </button>
+      </form>
+
+      <div class="mt-3 small text-muted">Stock: {{ object.stock }}</div>
+
+      <!-- ✅ Reviews -->
+      <hr class="my-4">
+      <h2 class="h6">Reviews</h2>
+      {% for r in reviews %}
+        <div class="mb-3">
+          <div class="small">
+            <strong>{{ r.user.username }}</strong>
+            <span class="text-warning ms-2">{% stars r.rating %}</span>
+            <span class="text-muted">· {{ r.created_at|date:"M j, Y" }}</span>
+          </div>
+          {% if r.title %}<div class="fw-semibold">{{ r.title }}</div>{% endif %}
+          {% if r.body %}<div class="text-muted">{{ r.body }}</div>{% endif %}
+        </div>
+      {% empty %}
+        <p class="text-muted">Be the first to review.</p>
+      {% endfor %}
+
+      {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'add_review' object.slug %}" class="mt-3">
+          {% csrf_token %}
+          <div class="row g-2">
+            <div class="col-md-3">
+              <label class="form-label">Rating</label>
+              <select name="rating" class="form-select" required>
+                <option value="">Choose…</option>
+                <option>5</option><option>4</option><option>3</option><option>2</option><option>1</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Title (optional)</label>
+              <input name="title" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Review (optional)</label>
+              <textarea name="body" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+          <button class="btn btn-dark mt-2" type="submit">Submit Review</button>
+        </form>
+      {% else %}
+        <a class="btn btn-outline-dark mt-2" href="/login/?next={{ request.path }}">Login to write a review</a>
+      {% endif %}
+
+      <!-- ✅ Recently viewed -->
+      {% if recent_products %}
+        <hr class="my-4">
+        <h2 class="h6">Recently viewed</h2>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+          {% for p in recent_products %}
+          <div class="col">
+            <div class="card card-product h-100">
+              <a href="{{ p.get_absolute_url }}">
+                {% if p.image %}
+                  <img src="{{ p.image.url }}" alt="{{ p.title }}">
+                {% elif p.image_url %}
+                  <img src="{{ p.image_url }}" alt="{{ p.title }}">
+                {% else %}
+                  <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=1200&auto=format&fit=crop" alt="{{ p.title }}">
+                {% endif %}
+              </a>
+              <div class="card-body">
+                <h3 class="h6 card-title mb-1">
+                  <a class="text-dark text-decoration-none" href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+                </h3>
+                <div class="small text-muted">{{ p.brand.name }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

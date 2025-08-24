@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load shop_extras %}
+{% block title %}Checkout — GlowCart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="h4 mb-3">Checkout</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-4">
+      <!-- Left -->
+      <div class="col-lg-8">
+
+        <!-- Items -->
+        <div class="card p-3 mb-3">
+          <h2 class="h6">Items</h2>
+          <div class="list-group">
+            {% for it in items %}
+              <div class="list-group-item d-flex justify-content-between">
+                <div>
+                  <strong>{{ it.product.title }}</strong>
+                  {% if it.variant %}<div class="small text-muted">{{ it.variant.name }}</div>{% endif %}
+                  <div class="small text-muted">{{ it.qty }} × {% if it.variant %}{{ it.variant.display_price|money }}{% else %}{{ it.product.price|money }}{% endif %}</div>
+                </div>
+                <div class="fw-semibold">{{ it.line_total|money }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="card p-3 mb-3">
+          <h2 class="h6">Shipping address</h2>
+          {% if addresses %}
+            {% for a in addresses %}
+              <div class="form-check">
+                <input class="form-check-input addr-radio" type="radio" name="address_id" id="addr_{{ a.id }}" value="{{ a.id }}"
+                       {% if selected_address and selected_address.id == a.id %}checked{% endif %}>
+                <label class="form-check-label" for="addr_{{ a.id }}">
+                  {{ a }}  {# assumes Address.__str__ prints nicely; otherwise customize #}
+                </label>
+              </div>
+            {% endfor %}
+            <a href="{% url 'address_create' %}" class="btn btn-sm btn-outline-dark mt-2">Add new address</a>
+          {% else %}
+            <div class="text-muted small mb-2">You don’t have any addresses yet.</div>
+            <a href="{% url 'address_create' %}" class="btn btn-sm btn-dark">Add shipping address</a>
+          {% endif %}
+        </div>
+
+        <!-- Shipping -->
+        <div class="card p-3 mb-3">
+          <h2 class="h6">Shipping</h2>
+          {% if shipping_methods %}
+            {% for m in shipping_methods %}
+              <div class="form-check">
+                <input class="form-check-input ship-radio" type="radio" name="shipping" id="ship_{{ m.code }}" value="{{ m.code }}"
+                       {% if shipping and shipping.code == m.code %}checked{% endif %}>
+                <label class="form-check-label" for="ship_{{ m.code }}">
+                  {{ m.name }} — {{ m.price|money }}
+                </label>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-muted small">No shipping methods configured.</div>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Right: summary + submit -->
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between"><span>Subtotal</span><span>{{ subtotal|money }}</span></div>
+          {% if discount and discount > 0 %}
+            <div class="d-flex justify-content-between text-success"><span>Discount</span><span>-{{ discount|money }}</span></div>
+          {% endif %}
+          <div class="d-flex justify-content-between"><span>Shipping{% if shipping %} ({{ shipping.name }}){% endif %}</span><span>{{ shipping_cost|money }}</span></div>
+          <hr>
+          <div class="d-flex justify-content-between"><span class="fw-semibold">Total</span><span class="fw-semibold">{{ total|money }}</span></div>
+          <button class="btn btn-dark mt-3 w-100" type="submit">Place Order (Cash on Delivery)</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // When the user changes shipping, reload with ?shipping=...&address_id=... so totals refresh
+  function refreshWithParams() {
+    const params = new URLSearchParams(window.location.search);
+    const ship = document.querySelector('input[name="shipping"]:checked');
+    const addr = document.querySelector('input[name="address_id"]:checked');
+    if (ship) params.set('shipping', ship.value);
+    if (addr) params.set('address_id', addr.value);
+    window.location = window.location.pathname + '?' + params.toString();
+  }
+  document.querySelectorAll('.ship-radio').forEach(r => r.addEventListener('change', refreshWithParams));
+  document.querySelectorAll('.addr-radio').forEach(r => r.addEventListener('change', refreshWithParams));
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load shop_extras %}
+{% block title %}Metrics — {{ block.super }}{% endblock %}
+{% block content %}
+<h1>Store Metrics</h1>
+<div class="dashboard">
+  <div class="module">
+    <h2>Overview</h2>
+    <div>Total orders: <strong>{{ total_orders }}</strong></div>
+    <div>Total revenue: <strong>{{ total_revenue|money }}</strong></div>
+    <div>Last 7 days: <strong>{{ week_revenue|money }}</strong></div>
+    <div>Last 30 days: <strong>{{ month_revenue|money }}</strong></div>
+  </div>
+  <div class="module">
+    <h2>Top products</h2>
+    <table>
+      <thead><tr><th>Product</th><th>Qty</th><th>Sales</th></tr></thead>
+      <tbody>
+        {% for r in top_products %}
+          <tr>
+            <td>{{ r.product__title }}</td>
+            <td>{{ r.qty }}</td>
+            <td>{{ r.sales|money }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3">No data</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

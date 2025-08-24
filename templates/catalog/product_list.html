@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load shop_extras %}
+{% block title %}{{ page_title }} — GlowCart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="h4 mb-3">{{ page_title }}</h1>
+
+  <nav aria-label="breadcrumb" class="small">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      {% if page_title and page_title != "Shop" %}
+        <li class="breadcrumb-item"><a href="/shop/">Shop</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+      {% else %}
+        <li class="breadcrumb-item active" aria-current="page">Shop</li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-12 col-md-4">
+      <input name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search products...">
+    </div>
+    <div class="col-6 col-md-2">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        {% for c in all_categories %}
+          <option value="{{ c.slug }}" {% if request.GET.category == c.slug %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <select name="brand" class="form-select">
+        <option value="">All Brands</option>
+        {% for b in all_brands %}
+          <option value="{{ b.slug }}" {% if request.GET.brand == b.slug %}selected{% endif %}>{{ b.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-1">
+      <input name="min" type="number" step="0.01" value="{{ request.GET.min }}" class="form-control" placeholder="Min">
+    </div>
+    <div class="col-6 col-md-1">
+      <input name="max" type="number" step="0.01" value="{{ request.GET.max }}" class="form-control" placeholder="Max">
+    </div>
+    <div class="col-6 col-md-2">
+      <select name="order" class="form-select">
+        <option value="new" {% if request.GET.order == "new" or not request.GET.order %}selected{% endif %}>Newest</option>
+        <option value="price_asc" {% if request.GET.order == "price_asc" %}selected{% endif %}>Price: Low → High</option>
+        <option value="price_desc" {% if request.GET.order == "price_desc" %}selected{% endif %}>Price: High → Low</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-1 d-grid">
+      <button class="btn btn-dark" type="submit">Filter</button>
+    </div>
+  </form>
+
+  <!-- Robust grid: 2 cols on mobile, 3 on md, 4 on lg+ -->
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for p in products %}
+      <div class="col">
+        <div class="card card-product h-100">
+
+          <a href="{{ p.get_absolute_url }}">
+            {% if p.image %}
+              <img src="{{ p.image.url }}" alt="{{ p.title }}">
+            {% elif p.image_url %}
+              <img src="{{ p.image_url }}" alt="{{ p.title }}">
+            {% else %}
+              <img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=1200&auto=format&fit=crop" alt="{{ p.title }}">
+            {% endif %}
+          </a>
+
+          <div class="card-body">
+            <span class="badge badge-soft mb-2">
+              <a class="text-decoration-none" href="{% url 'brand_list' p.brand.slug %}">{{ p.brand.name }}</a>
+            </span>
+            <h3 class="h6 card-title mb-1">
+              <a class="text-dark text-decoration-none" href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            </h3>
+            <div class="small mb-2">
+              <a class="text-muted text-decoration-none" href="{% url 'category_list' p.category.slug %}">{{ p.category.name }}</a>
+            </div>
+
+            <!-- ⭐ Rating block -->
+            <div class="mb-2 small">
+              {% if p.rating_count %}
+                {% stars p.rating_avg %} <span class="text-muted">({{ p.rating_count }})</span>
+              {% else %}
+                <span class="text-muted">No reviews</span>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                {% if request.user.is_authenticated %}
+                <form method="post" action="{% url 'toggle_wishlist' p.id %}" class="me-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button class="btn btn-sm btn-outline-dark" type="submit" title="Wishlist">
+                    <i class="bi bi-heart"></i>
+                  </button>
+                </form>
+                {% endif %}
+                <strong class="ms-1">{{ p.price|money }}</strong>
+              </div>
+              <!-- ✅ Modified Add-to-Cart button with stock check -->
+              <form method="post" action="{% url 'add_to_cart' p.id %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-dark" type="submit" {% if p.stock|default:0 <= 0 %}disabled{% endif %}>
+                  {% if p.stock|default:0 <= 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center text-muted py-5">No products found.</div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="{% qs_replace page=page_obj.previous_page_number %}">Previous</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="{% qs_replace page=page_obj.next_page_number %}">Next</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

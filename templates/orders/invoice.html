@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load shop_extras %}
+{% block title %}Invoice #{{ order.id }} — GlowCart{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h5">Invoice #{{ order.id }}</h1>
+    <button class="btn btn-outline-dark" onclick="window.print()">Print</button>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card p-3">
+        <div class="fw-semibold mb-1">Billed To</div>
+        <div class="small text-muted">{{ order.user.username }}</div>
+        <div class="small">{{ order.address }}</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-3">
+        <div class="small">Date: {{ order.created_at|date:"M j, Y H:i" }}</div>
+        <div class="small">Status: {{ order.get_status_display }}</div>
+        {% if order.paid_at %}<div class="small">Paid at: {{ order.paid_at|date:"M j, Y H:i" }}</div>{% endif %}
+        {% if order.payment_intent_id %}<div class="small">PaymentIntent: {{ order.payment_intent_id }}</div>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-3 mt-3">
+    <table class="table table-sm">
+      <thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Total</th></tr></thead>
+      <tbody>
+        {% for it in order.items.all %}
+          <tr>
+            <td>{{ it.product.title }}{% if it.variant %} ({{ it.variant.name }}){% endif %}</td>
+            <td class="text-end">{{ it.qty }}</td>
+            <td class="text-end">{{ it.unit_price|money }}</td>
+            <td class="text-end">{{ it.line_total|money }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><th colspan="3" class="text-end">Subtotal</th><th class="text-end">{{ order.subtotal|money }}</th></tr>
+        {% if order.discount_total and order.discount_total > 0 %}
+          <tr class="text-success"><th colspan="3" class="text-end">Discount</th><th class="text-end">-{{ order.discount_total|money }}</th></tr>
+        {% endif %}
+        <tr><th colspan="3" class="text-end">Shipping{% if order.shipping_method %} ({{ order.shipping_method.name }}){% endif %}</th><th class="text-end">{{ order.shipping_cost|money }}</th></tr>
+        <tr><th colspan="3" class="text-end">Total</th><th class="text-end">{{ order.total|money }}</th></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

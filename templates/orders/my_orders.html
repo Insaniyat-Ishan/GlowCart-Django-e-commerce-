@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load shop_extras %}
+{% block title %}My Orders — GlowCart{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="h4 mb-3">My Orders</h1>
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>ID</th><th>Date</th><th>Status</th><th>Total</th><th></th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td>#{{ o.id }}</td>
+          <td>{{ o.created_at|date:"M j, Y H:i" }}</td>
+          <td><span class="badge {% if o.status == 'paid' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+            {{ o.get_status_display }}
+          </span></td>
+          <td>{{ o.total|money }}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-dark" href="{% url 'order_detail' o.id %}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">You have no orders yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

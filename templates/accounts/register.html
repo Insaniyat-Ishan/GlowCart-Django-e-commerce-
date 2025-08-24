@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Create Account — GlowCart{% endblock %}
+{% block content %}
+<div class="auth-bg min-vh-100 d-flex align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="row g-0 auth-card">
+          <!-- Left image panel: your signup image -->
+          <div class="col-lg-5 auth-side"
+               style="background-image:
+                      linear-gradient(135deg, rgba(0,0,0,.35), rgba(0,0,0,.20)),
+                      url('{% static "img/signup-hero.jpg" %}');">
+            <div class="p-4 d-flex flex-column h-100">
+              <div class="h4 fw-bold auth-brand">GlowCart</div>
+              <div class="mt-auto">
+                <div class="h5 fw-semibold">Join GlowCart</div>
+                <p class="text-white-50 mb-0">Curated skincare & haircare for you.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right form panel -->
+          <div class="col-lg-7 bg-white">
+            <div class="p-4 p-md-5">
+              {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+              <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                  <label class="form-label">Username</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input name="username" class="form-control" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Email (optional)</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input name="email" type="email" class="form-control">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input id="reg-pass" name="password" type="password" class="form-control" required minlength="6">
+                    <button class="btn btn-outline-secondary" type="button" id="toggle-reg-pass">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                  <div class="form-text">At least 6 characters.</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button class="btn btn-dark btn-auth" type="submit">Create account</button>
+                  <a class="btn btn-outline-dark btn-auth" href="/login/">Already have an account? Login</a>
+                </div>
+              </form>
+              <div class="text-muted small mt-3">By creating an account, you agree to our Terms & Privacy.</div>
+            </div>
+          </div>
+        </div>
+      </div>  
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('toggle-reg-pass')?.addEventListener('click', function(){
+  const i = document.getElementById('reg-pass'); if(!i) return;
+  i.type = i.type === 'password' ? 'text' : 'password';
+  const icon = this.querySelector('i'); icon.classList.toggle('bi-eye'); icon.classList.toggle('bi-eye-slash');
+});
+</script>
+{% endblock %}

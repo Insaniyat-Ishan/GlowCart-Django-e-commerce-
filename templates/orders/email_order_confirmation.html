@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <body style="font-family:Arial, sans-serif">
+    <h2>Thanks for your order, {{ order.user.username }}!</h2>
+    <p>Order <strong>#{{ order.id }}</strong> — {{ order.created_at|date:"M j, Y H:i" }}</p>
+    <p>Status: <strong>{{ order.get_status_display }}</strong></p>
+
+    <table cellpadding="6" cellspacing="0" border="1" style="border-collapse:collapse;">
+      <tr><th align="left">Item</th><th align="right">Qty</th><th align="right">Price</th><th align="right">Line</th></tr>
+      {% for it in items %}
+      <tr>
+        <td>{{ it.product.title }}</td>
+        <td align="right">{{ it.qty }}</td>
+        <td align="right">{{ it.unit_price }}</td>
+        <td align="right">{{ it.line_total }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <p>Subtotal: {{ order.subtotal }}<br>
+    {% if order.discount_total and order.discount_total > 0 %}Discount: -{{ order.discount_total }}<br>{% endif %}
+    <strong>Total: {{ order.total }}</strong></p>
+
+    <p>We’ll contact you when it’s on the way.</p>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load shop_extras %}
+{% block title %}Wishlist — GlowCart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="h4 mb-3">Your Wishlist</h1>
+  <div class="row g-4">
+    {% for w in items %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card card-product h-100">
+        {% if w.product.image %}<img src="{{ w.product.image.url }}" class="card-img-top" alt="{{ w.product.title }}">
+        {% elif w.product.image_url %}<img src="{{ w.product.image_url }}" class="card-img-top" alt="{{ w.product.title }}">
+        {% else %}<img src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?q=80&w=1200&auto=format&fit=crop" class="card-img-top" alt="{{ w.product.title }}">{% endif %}
+        <div class="card-body">
+          <span class="badge badge-soft mb-2">{{ w.product.brand.name }}</span>
+          <h3 class="h6 card-title mb-1"><a class="text-dark text-decoration-none" href="{{ w.product.get_absolute_url }}">{{ w.product.title }}</a></h3>
+          <div class="text-muted small mb-2">{{ w.product.category.name }}</div>
+          <div class="d-flex justify-content-between">
+            <strong>{{ w.product.price|money }}</strong>
+            <form method="post" action="{% url 'toggle_wishlist' w.product.id %}">
+              {% csrf_token %}<input type="hidden" name="next" value="/wishlist/">
+              <button class="btn btn-sm btn-outline-danger">Remove</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <div class="col-12 text-center text-muted py-5">Your wishlist is empty.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

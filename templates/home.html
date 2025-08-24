@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% load shop_extras %}
+{% block title %}GlowCart — Skincare & Haircare{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero-img{width:100%;max-height:380px;object-fit:cover}
+  .tile-img{width:100%;height:230px;object-fit:cover}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Hero -->
+  <div class="position-relative overflow-hidden rounded-4 mb-4" style="background:linear-gradient(135deg,#f6f5ff,#fff0f0);">
+    <div class="row g-0 align-items-center">
+      <div class="col-md-6 p-4 p-md-5">
+        <h1 class="display-6 mb-2">Glow starts with care.</h1>
+        <p class="text-muted mb-3">Clean, effective skincare & haircare — hand-picked for results.</p>
+        <a class="btn btn-dark btn-lg" href="/shop/">Shop now</a>
+      </div>
+      <div class="col-md-6">
+        <img class="hero-img d-none d-md-block"
+             src="{% static 'img/hero.jpg' %}"
+             alt="Skincare flatlay">
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured tiles -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <a href="/category/cleansers/" class="card text-decoration-none h-100">
+        <img class="tile-img" src="{% static 'img/cleansers.jpg' %}" alt="Cleansers">
+        <div class="card-body"><h3 class="h6 text-dark mb-0">Cleansers</h3></div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a href="/category/serums/" class="card text-decoration-none h-100">
+        <img class="tile-img" src="{% static 'img/serums.jpg' %}" alt="Serums">
+        <div class="card-body"><h3 class="h6 text-dark mb-0">Serums</h3></div>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a href="/category/shampoo/" class="card text-decoration-none h-100">
+        <img class="tile-img" src="{% static 'img/haircare.jpg' %}" alt="Haircare">
+        <div class="card-body"><h3 class="h6 text-dark mb-0">Haircare</h3></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Trending Products -->
+  <section class="mb-4 d-flex align-items-center justify-content-between">
+    <h2 class="h4 m-0">Trending Products</h2>
+    <a href="/shop/" class="text-decoration-none">View all →</a>
+  </section>
+
+  <div class="row g-4">
+    {% for p in trending %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card card-product h-100">
+          <a href="{{ p.get_absolute_url }}">
+            {% if p.image %}
+              <img src="{{ p.image.url }}" class="tile-img" alt="{{ p.title }}">
+            {% elif p.image_url %}
+              <img src="{{ p.image_url }}" class="tile-img" alt="{{ p.title }}">
+            {% else %}
+              <img src="{% static 'img/hero.jpg' %}" class="tile-img" alt="{{ p.title }}">
+            {% endif %}
+          </a>
+          <div class="card-body">
+            <span class="badge badge-soft mb-2">
+              <a class="text-decoration-none" href="{% url 'brand_list' p.brand.slug %}">{{ p.brand.name }}</a>
+            </span>
+            <h3 class="h6 card-title mb-1">
+              <a class="text-dark text-decoration-none" href="{{ p.get_absolute_url }}">{{ p.title }}</a>
+            </h3>
+            <div class="text-muted small mb-2">
+              <a class="text-decoration-none" href="{% url 'category_list' p.category.slug %}">{{ p.category.name }}</a>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>{{ p.price|money }}</strong>
+              <form method="post" action="{% url 'add_to_cart' p.id %}">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-dark" type="submit">Add to Cart</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-muted">No products yet. Add some in the admin.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
