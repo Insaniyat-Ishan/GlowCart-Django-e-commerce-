@@ -1,6 +1,6 @@
 # GlowCart — Django E-commerce (Skincare & Haircare)
 
-A clean, CV-ready e-commerce site built with **Django 5**, **Bootstrap 5**, and **Stripe**.  
+A clean e-commerce site built with **Django 5**, **Bootstrap 5**, and **Stripe**.  
 It includes product browsing, variants, cart & coupons, checkout (COD + Stripe), wishlist, reviews (with moderation), shipping methods, invoices, search autocomplete, and staff metrics.
 
 ### Live Demo (optional)
